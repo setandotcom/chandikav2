@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0f1117"/>
+<title>Chandika Agrolestari</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ══════════════════════════════════════
+DESIGN TOKENS — INDUSTRIAL PRECISION
+══════════════════════════════════════ */
+:root {
+–accent:       #00e676;
+–accent-dim:   #00c853;
+–accent-glow:  rgba(0,230,118,.18);
+–accent-pale:  rgba(0,230,118,.08);
+–warn:         #ffab00;
+–warn-pale:    rgba(255,171,0,.1);
+–danger:       #ff5252;
+–danger-pale:  rgba(255,82,82,.1);
+–blue:         #448aff;
+–blue-pale:    rgba(68,138,255,.1);
+–violet:       #e040fb;
+–violet-pale:  rgba(224,64,251,.1);
+–teal:         #00bcd4;
+
+–r-xl:   20px;
+–r-lg:   14px;
+–r-md:   10px;
+–r-sm:   7px;
+–nav-h:  68px;
+–hdr-h:  64px;
+–ease:   .25s cubic-bezier(.4,0,.2,1);
+–spring: .4s cubic-bezier(.34,1.56,.64,1);
+
+–display: ‘Outfit’, sans-serif;
+–mono:    ‘Space Mono’, monospace;
+–body:    ‘Outfit’, sans-serif;
+}
+
+/* DARK THEME (default) */
+[data-theme=“dark”] {
+–bg:       #0f1117;
+–bg2:      #161b24;
+–bg3:      #1e2535;
+–card:     #161b24;
+–card2:    #1e2535;
+–border:   rgba(255,255,255,.07);
+–border2:  rgba(255,255,255,.12);
+–text:     #e8eaf0;
+–text-2:   #8892a4;
+–text-3:   #4a5568;
+–shadow:   0 4px 24px rgba(0,0,0,.4);
+–shadow-sm:0 2px 10px rgba(0,0,0,.3);
+–invert:   0;
+}
+
+/* LIGHT THEME */
+[data-theme=“light”] {
+–bg:       #f0f4f8;
+–bg2:      #ffffff;
+–bg3:      #e8eef5;
+–card:     #ffffff;
+–card2:    #f0f4f8;
+–border:   rgba(0,0,0,.07);
+–border2:  rgba(0,0,0,.12);
+–text:     #0f1117;
+–text-2:   #4a5568;
+–text-3:   #94a3b8;
+–shadow:   0 4px 24px rgba(0,0,0,.08);
+–shadow-sm:0 2px 10px rgba(0,0,0,.06);
+–invert:   1;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+body {
+font-family: var(–body);
+background: var(–bg);
+color: var(–text);
+min-height: 100dvh;
+max-width: 480px;
+margin: 0 auto;
+overflow-x: hidden;
+-webkit-font-smoothing: antialiased;
+-webkit-tap-highlight-color: transparent;
+transition: background var(–ease), color var(–ease);
+}
+::-webkit-scrollbar { width:0 }
+input, select, button { font-family: var(–body) }
+
+/* ══════════════════════════════════════
+SPLASH
+══════════════════════════════════════ */
+#splash {
+position:fixed; inset:0; z-index:900;
+background: var(–bg);
+display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+transition:opacity .5s ease;
+}
+#splash.out { opacity:0; pointer-events:none }
+.splash-logo {
+width:72px; height:72px; border-radius:22px;
+background: linear-gradient(135deg, var(–accent), var(–accent-dim));
+display:flex; align-items:center; justify-content:center; font-size:36px;
+box-shadow: 0 0 40px var(–accent-glow);
+animation: splashPulse 1.2s ease infinite alternate;
+}
+@keyframes splashPulse { from{box-shadow:0 0 20px var(–accent-glow)} to{box-shadow:0 0 60px var(–accent-glow)} }
+.splash-brand { font-family:var(–display); font-size:20px; font-weight:800; color:var(–text); letter-spacing:-.3px }
+.splash-tag { font-family:var(–mono); font-size:10px; color:var(–accent); letter-spacing:2px; text-transform:uppercase }
+.splash-bar { width:48px; height:2px; background:var(–bg3); border-radius:1px; overflow:hidden; margin-top:8px }
+.splash-fill { height:100%; background:var(–accent); border-radius:1px; animation:barFlow 1.4s ease infinite }
+@keyframes barFlow { 0%{width:0;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0;margin-left:100%} }
+
+/* ══════════════════════════════════════
+LOGIN
+══════════════════════════════════════ */
+#loginPage {
+position:fixed; inset:0; z-index:800;
+display:none; flex-direction:column;
+background:var(–bg); overflow:hidden;
+}
+.login-grid-bg {
+position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.login-grid-bg::before {
+content:’’; position:absolute; inset:0;
+background-image:
+linear-gradient(var(–border) 1px, transparent 1px),
+linear-gradient(90deg, var(–border) 1px, transparent 1px);
+background-size:32px 32px;
+}
+.login-grid-bg::after {
+content:’’; position:absolute;
+top:-40%; left:-20%; width:80%; height:80%;
+background: radial-gradient(ellipse, var(–accent-glow) 0%, transparent 70%);
+border-radius:50%;
+}
+.login-top {
+flex:1; display:flex; flex-direction:column;
+align-items:center; justify-content:center;
+padding:40px 24px 24px; position:relative; z-index:1;
+}
+.login-pill {
+display:inline-flex; align-items:center; gap:8px;
+border:1px solid var(–border2); border-radius:40px;
+padding:7px 14px 7px 10px; margin-bottom:28px;
+background:var(–card2); backdrop-filter:blur(12px);
+}
+.login-pill-dot { width:8px; height:8px; background:var(–accent); border-radius:50%; animation:pulseDot 2s infinite }
+.login-pill span { font-family:var(–mono); font-size:11px; color:var(–text-2); letter-spacing:.5px }
+.login-headline { font-family:var(–display); font-size:36px; font-weight:900; color:var(–text); text-align:center; line-height:1.05; letter-spacing:-1px; margin-bottom:8px }
+.login-headline span { color:var(–accent) }
+.login-sub { font-size:14px; color:var(–text-2); text-align:center }
+.login-form-card {
+background:var(–card); border-top:1px solid var(–border);
+border-radius:var(–r-xl) var(–r-xl) 0 0;
+padding:28px 24px 40px; position:relative; z-index:1;
+}
+.form-label { font-family:var(–mono); font-size:10px; font-weight:700; color:var(–text-3); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:8px; display:block }
+.form-input-wrap { position:relative; margin-bottom:12px }
+.form-input-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none }
+.form-input {
+width:100%; padding:13px 13px 13px 40px;
+background:var(–bg2); border:1.5px solid var(–border);
+border-radius:var(–r-md); font-size:15px; font-weight:500;
+color:var(–text); outline:none;
+transition:border-color var(–ease), background var(–ease), box-shadow var(–ease);
+-webkit-appearance:none;
+}
+.form-input:focus { border-color:var(–accent); background:var(–bg); box-shadow:0 0 0 3px var(–accent-glow) }
+.pass-eye { position:absolute; right:13px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:15px; color:var(–text-3) }
+.login-row { display:flex; align-items:center; justify-content:space-between; margin:4px 0 18px }
+.remember { display:flex; align-items:center; gap:7px; cursor:pointer }
+.remember input { accent-color:var(–accent); width:15px; height:15px; cursor:pointer }
+.remember span { font-size:13px; color:var(–text-2) }
+.forgot { font-size:13px; font-weight:600; color:var(–accent); cursor:pointer }
+.login-btn {
+width:100%; padding:15px;
+background:var(–accent); color:#0f1117;
+border:none; border-radius:var(–r-md);
+font-family:var(–display); font-size:16px; font-weight:800;
+cursor:pointer; letter-spacing:-.2px;
+box-shadow:0 4px 24px var(–accent-glow);
+transition:transform var(–ease), box-shadow var(–ease), opacity var(–ease);
+display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.login-btn:active { transform:scale(.97) }
+.login-btn:disabled { opacity:.5; cursor:not-allowed }
+.login-err {
+display:none; margin-top:12px;
+background:var(–danger-pale); border:1px solid var(–danger);
+border-radius:var(–r-md); padding:10px 13px;
+font-size:13px; font-weight:500; color:var(–danger); gap:8px; align-items:center;
+}
+.login-err.show { display:flex }
+.login-footer { margin-top:14px; text-align:center; font-family:var(–mono); font-size:10px; color:var(–text-3) }
+
+/* ══════════════════════════════════════
+APP SHELL
+══════════════════════════════════════ */
+#app { display:none }
+#app.on { display:block }
+
+/* ══════════════════════════════════════
+HEADER
+══════════════════════════════════════ */
+.hdr {
+position:fixed; top:0; left:50%; transform:translateX(-50%);
+width:100%; max-width:480px; height:var(–hdr-h);
+background:rgba(15,17,23,.85);
+backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+border-bottom:1px solid var(–border);
+display:flex; align-items:center; justify-content:space-between;
+padding:0 18px; z-index:100;
+}
+[data-theme=“light”] .hdr { background:rgba(240,244,248,.88) }
+.hdr-brand { display:flex; align-items:center; gap:10px }
+.hdr-logo { width:34px; height:34px; border-radius:10px; background:var(–accent); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0 }
+.hdr-left {}
+.hdr-greet { font-family:var(–display); font-size:15px; font-weight:800; color:var(–text); letter-spacing:-.2px; line-height:1 }
+.hdr-sub { font-family:var(–mono); font-size:9px; color:var(–text-3); margin-top:3px; letter-spacing:.3px }
+.hdr-right { display:flex; align-items:center; gap:8px }
+.hdr-btn {
+width:36px; height:36px; background:var(–card2);
+border:1px solid var(–border); border-radius:var(–r-md);
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+font-size:16px; transition:transform var(–ease), border-color var(–ease);
+position:relative;
+}
+.hdr-btn:active { transform:scale(.9) }
+.hdr-btn.theme-btn { font-size:14px }
+.bell-dot {
+position:absolute; top:7px; right:7px;
+width:7px; height:7px; background:var(–danger);
+border-radius:50%; border:1.5px solid var(–bg);
+display:none; animation:pulseDot 2s infinite;
+}
+.live-pill {
+display:flex; align-items:center; gap:5px;
+background:var(–accent-pale); border:1px solid rgba(0,230,118,.2);
+border-radius:20px; padding:4px 10px;
+font-family:var(–mono); font-size:10px; font-weight:700; color:var(–accent);
+letter-spacing:.5px;
+}
+.live-dot { width:6px; height:6px; background:var(–accent); border-radius:50%; animation:pulseDot 2s infinite }
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.4)} }
+
+/* ══════════════════════════════════════
+MAIN
+══════════════════════════════════════ */
+.main {
+padding-top:calc(var(–hdr-h) + 14px);
+padding-bottom:calc(var(–nav-h) + 14px);
+min-height:100dvh;
+}
+.page { display:none; padding:0 14px; animation:pgIn .3s ease }
+.page.on { display:block }
+@keyframes pgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.sec { font-family:var(–display); font-size:13px; font-weight:700; color:var(–text-2); margin:18px 0 10px 2px; display:flex; align-items:center; justify-content:space-between; text-transform:uppercase; letter-spacing:.8px }
+.sec-sub { font-size:11px; font-weight:600; color:var(–accent); cursor:pointer; text-transform:none; letter-spacing:0 }
+
+/* ══════════════════════════════════════
+HERO CARD
+══════════════════════════════════════ */
+.hero-card {
+background:var(–card2);
+border:1px solid var(–border2);
+border-radius:var(–r-xl); padding:20px;
+position:relative; overflow:hidden;
+box-shadow:var(–shadow);
+}
+.hero-card-bg {
+position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.hero-card-bg::before {
+content:’’; position:absolute; top:-30px; right:-30px;
+width:160px; height:160px; border-radius:50%;
+background:radial-gradient(circle, var(–accent-glow), transparent 70%);
+}
+.hero-card-bg::after {
+content:‘🥔’; position:absolute; right:14px; top:14px;
+font-size:80px; opacity:.06; transform:rotate(-10deg);
+}
+.hero-top { display:flex; align-items:flex-start; justify-content:space-between; position:relative; z-index:1 }
+.hero-tag {
+display:inline-flex; align-items:center; gap:5px;
+border:1px solid var(–border2); border-radius:20px;
+padding:4px 10px; font-family:var(–mono); font-size:10px; color:var(–text-2);
+letter-spacing:.4px; margin-bottom:10px; background:var(–bg2);
+}
+.hero-tag-dot { width:6px; height:6px; background:var(–accent); border-radius:50%; animation:pulseDot 2s infinite }
+.hero-title { font-family:var(–display); font-size:26px; font-weight:900; color:var(–text); line-height:1.1; letter-spacing:-.5px }
+.hero-date { font-family:var(–mono); font-size:10px; color:var(–text-3); margin-top:6px; letter-spacing:.2px }
+.hero-hst {
+background:var(–accent); color:#0f1117;
+border-radius:var(–r-md); padding:14px 18px; text-align:center;
+flex-shrink:0; box-shadow:0 4px 20px var(–accent-glow);
+}
+.hst-n { font-family:var(–mono); font-size:34px; font-weight:700; line-height:1; display:block }
+.hst-l { font-family:var(–mono); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; opacity:.7; display:block; margin-top:2px }
+.hero-bottom { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:16px; position:relative; z-index:1 }
+.hero-chip {
+background:var(–bg2); border:1px solid var(–border);
+border-radius:var(–r-md); padding:10px 12px;
+display:flex; align-items:center; gap:8px;
+}
+.hero-chip-icon { font-size:18px }
+.hc-label { font-family:var(–mono); font-size:9px; color:var(–text-3); display:block; letter-spacing:.4px; text-transform:uppercase }
+.hc-value { font-family:var(–mono); font-size:13px; font-weight:700; color:var(–text); display:block; margin-top:2px }
+
+/* ══════════════════════════════════════
+STATS ROW
+══════════════════════════════════════ */
+.stats-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px }
+.stats-row::-webkit-scrollbar { display:none }
+.stat-chip {
+flex-shrink:0; background:var(–card);
+border:1px solid var(–border); border-radius:var(–r-lg); padding:13px 14px;
+min-width:104px; position:relative; overflow:hidden;
+transition:border-color var(–ease), transform var(–ease);
+}
+.stat-chip:active { transform:scale(.96) }
+.stat-chip-bar { position:absolute; bottom:0; left:0; height:2px; border-radius:0 1px 0 var(–r-lg) }
+.sc-ph  .stat-chip-bar { background:var(–accent); width:55% }
+.sc-ec  .stat-chip-bar { background:var(–blue); width:70% }
+.sc-wt  .stat-chip-bar { background:var(–warn); width:45% }
+.sc-at  .stat-chip-bar { background:var(–danger); width:60% }
+.sc-hm  .stat-chip-bar { background:var(–violet); width:75% }
+.stat-chip-label { font-family:var(–mono); font-size:9px; font-weight:700; color:var(–text-3); text-transform:uppercase; letter-spacing:.7px; margin-bottom:6px }
+.stat-chip-val { font-family:var(–mono); font-size:22px; font-weight:700; color:var(–text); line-height:1; display:flex; align-items:baseline; gap:2px }
+.stat-chip-unit { font-size:10px; font-weight:400; color:var(–text-3) }
+.stat-chip-badge { display:inline-block; margin-top:7px; font-family:var(–mono); font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; text-transform:uppercase; letter-spacing:.4px }
+.badge-ok   { background:var(–accent-pale); color:var(–accent); border:1px solid rgba(0,230,118,.2) }
+.badge-warn { background:var(–warn-pale); color:var(–warn); border:1px solid rgba(255,171,0,.2) }
+.badge-bad  { background:var(–danger-pale); color:var(–danger); border:1px solid rgba(255,82,82,.2) }
+
+/* ══════════════════════════════════════
+SENSOR GRID
+══════════════════════════════════════ */
+.sensor-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px }
+.sensor-card {
+background:var(–card); border:1px solid var(–border); border-radius:var(–r-xl); padding:16px;
+position:relative; overflow:hidden; transition:border-color var(–ease), transform var(–ease);
+}
+.sensor-card:active { transform:scale(.97) }
+.sc-accent-line { position:absolute; top:0; left:0; right:0; height:2px }
+.sc-ph  .sc-accent-line { background:var(–accent) }
+.sc-ec  .sc-accent-line { background:var(–blue) }
+.sc-wt  .sc-accent-line { background:var(–warn) }
+.sc-air .sc-accent-line { background:var(–violet) }
+.sc-icon { font-size:20px; margin-bottom:8px; display:block }
+.sc-label { font-family:var(–mono); font-size:9px; font-weight:700; color:var(–text-3); text-transform:uppercase; letter-spacing:.7px; margin-bottom:6px }
+.sc-val { font-family:var(–mono); font-size:28px; font-weight:700; color:var(–text); line-height:1; display:flex; align-items:baseline; gap:3px; margin-bottom:10px }
+.sc-unit { font-size:12px; font-weight:400; color:var(–text-3) }
+.sc-trend { font-size:11px; font-weight:700; margin-left:2px }
+.trend-up { color:var(–danger) }
+.trend-down { color:var(–blue) }
+.trend-flat { color:var(–text-3) }
+.sc-bar-track { height:3px; background:var(–bg3); border-radius:2px; overflow:hidden; margin-bottom:8px }
+.sc-bar-fill { height:100%; border-radius:2px; transition:width .9s cubic-bezier(.4,0,.2,1) }
+.sc-badge { display:inline-flex; align-items:center; gap:4px; font-family:var(–mono); font-size:9px; font-weight:700; padding:3px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:.4px }
+.sc-air-row { display:flex; gap:0 }
+.sc-air-col { flex:1 }
+.sc-air-div { width:1px; background:var(–border); margin:0 10px }
+.sc-air .sc-val { font-size:22px }
+
+/* ══════════════════════════════════════
+RELAY CARDS
+══════════════════════════════════════ */
+.relay-row { display:flex; gap:10px; margin-bottom:4px }
+.relay-card {
+flex:1; background:var(–card); border:1px solid var(–border);
+border-radius:var(–r-xl); padding:16px;
+transition:border-color var(–ease), transform var(–ease);
+}
+.relay-card:active { transform:scale(.97) }
+.relay-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px }
+.relay-icon { width:38px; height:38px; border-radius:var(–r-md); display:flex; align-items:center; justify-content:center; font-size:18px }
+.ri-pump { background:var(–blue-pale); border:1px solid var(–blue-pale) }
+.ri-fan  { background:var(–violet-pale); border:1px solid var(–violet-pale) }
+.relay-name { font-family:var(–display); font-size:13px; font-weight:700; color:var(–text); margin-bottom:2px }
+.relay-mode { font-family:var(–mono); font-size:9px; color:var(–text-3); letter-spacing:.3px }
+.relay-status { display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-family:var(–mono); font-size:10px; font-weight:700; padding:4px 9px; border-radius:4px }
+.rs-on  { background:var(–accent-pale); color:var(–accent); border:1px solid rgba(0,230,118,.2) }
+.rs-off { background:var(–bg3); color:var(–text-3); border:1px solid var(–border) }
+.rs-dot { width:5px; height:5px; border-radius:50% }
+.rs-on  .rs-dot { background:var(–accent); animation:pulseDot 2s infinite }
+.rs-off .rs-dot { background:var(–text-3) }
+.toggle { position:relative; width:44px; height:24px; cursor:pointer; flex-shrink:0 }
+.toggle input { display:none }
+.t-track { position:absolute; inset:0; background:var(–bg3); border-radius:12px; transition:background var(–ease); border:1.5px solid var(–border) }
+.toggle input:checked ~ .t-track { background:var(–accent); border-color:transparent }
+.t-thumb { position:absolute; left:3px; top:3px; width:18px; height:18px; background:#fff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,.25); transition:transform var(–ease) }
+.toggle input:checked ~ .t-track ~ .t-thumb { transform:translateX(20px) }
+.tl-wrap { display:flex; align-items:center; gap:6px }
+.tl { font-family:var(–mono); font-size:11px; font-weight:700; min-width:24px; text-align:right }
+
+/* ══════════════════════════════════════
+QUICK ACTIONS
+══════════════════════════════════════ */
+.qa-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:4px }
+.qa-scroll::-webkit-scrollbar { display:none }
+.qa-card {
+flex-shrink:0; width:120px; border-radius:var(–r-lg); padding:14px 13px;
+cursor:pointer; transition:transform var(–spring), box-shadow var(–ease);
+display:flex; flex-direction:column; gap:8px; border:1px solid transparent; position:relative; overflow:hidden;
+}
+.qa-card:active { transform:scale(.94) }
+.qa-green  { background:var(–accent); color:#0f1117 }
+.qa-blue   { background:var(–blue-pale); color:var(–blue); border-color:rgba(68,138,255,.2) }
+.qa-warn   { background:var(–warn-pale); color:var(–warn); border-color:rgba(255,171,0,.2) }
+.qa-violet { background:var(–violet-pale); color:var(–violet); border-color:rgba(224,64,251,.2) }
+.qa-teal   { background:rgba(0,188,212,.1); color:var(–teal); border-color:rgba(0,188,212,.2) }
+.qa-icon   { font-size:24px }
+.qa-label  { font-family:var(–display); font-size:12px; font-weight:700; line-height:1.2 }
+
+/* ══════════════════════════════════════
+SCHEDULE
+══════════════════════════════════════ */
+.schedule-card {
+background:var(–card); border:1px solid var(–border);
+border-radius:var(–r-xl); padding:16px; margin-bottom:4px;
+}
+.schedule-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px }
+.schedule-title { font-family:var(–display); font-size:14px; font-weight:800; color:var(–text) }
+.schedule-month { font-family:var(–mono); font-size:10px; color:var(–text-3) }
+.day-row { display:flex; gap:4px }
+.day-cell { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 4px; border-radius:var(–r-sm); cursor:pointer; transition:background var(–ease) }
+.day-cell:active { background:var(–bg3) }
+.day-name { font-family:var(–mono); font-size:8px; font-weight:700; color:var(–text-3); text-transform:uppercase }
+.day-num { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(–mono); font-size:13px; font-weight:700; color:var(–text) }
+.day-dot { width:4px; height:4px; border-radius:50%; background:transparent }
+.day-cell.today .day-num { background:var(–accent); color:#0f1117; box-shadow:0 0 16px var(–accent-glow) }
+.day-cell.spray .day-dot { background:var(–blue) }
+.day-cell.today .day-dot { background:#0f1117 }
+.schedule-next { margin-top:12px; background:var(–bg2); border:1px solid var(–border); border-radius:var(–r-md); padding:11px 13px; display:flex; align-items:center; gap:10px }
+.next-ico { width:32px; height:32px; background:var(–blue-pale); border-radius:var(–r-sm); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0 }
+.next-label { font-family:var(–mono); font-size:9px; color:var(–text-3); letter-spacing:.3px; text-transform:uppercase }
+.next-val { font-family:var(–display); font-size:13px; font-weight:700; color:var(–text); margin-top:2px }
+.next-badge { margin-left:auto; background:var(–blue-pale); color:var(–blue); border:1px solid rgba(68,138,255,.2); font-family:var(–mono); font-size:9px; font-weight:700; padding:3px 8px; border-radius:4px }
+
+/* ══════════════════════════════════════
+ACTIVITY FEED
+══════════════════════════════════════ */
+.activity-list { display:flex; flex-direction:column; gap:7px; margin-bottom:4px }
+.activity-item {
+background:var(–card); border:1px solid var(–border); border-radius:var(–r-lg);
+padding:12px 13px; display:flex; align-items:center; gap:11px;
+position:relative; overflow:hidden;
+}
+.activity-item::before { content:’’; position:absolute; left:0; top:0; bottom:0; width:2px }
+.ai-green::before { background:var(–accent) }
+.ai-amber::before { background:var(–warn) }
+.ai-red::before   { background:var(–danger) }
+.ai-blue::before  { background:var(–blue) }
+.ai-icon { width:34px; height:34px; border-radius:var(–r-sm); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0 }
+.ai-green .ai-icon { background:var(–accent-pale) }
+.ai-amber .ai-icon { background:var(–warn-pale) }
+.ai-red   .ai-icon { background:var(–danger-pale) }
+.ai-blue  .ai-icon { background:var(–blue-pale) }
+.ai-body { flex:1 }
+.ai-title { font-family:var(–display); font-size:13px; font-weight:700; color:var(–text); margin-bottom:1px }
+.ai-desc  { font-size:12px; color:var(–text-2) }
+.ai-time  { font-family:var(–mono); font-size:9px; color:var(–text-3); margin-top:3px }
+.ai-unread { width:7px; height:7px; background:var(–accent); border-radius:50%; flex-shrink:0 }
+
+/* ══════════════════════════════════════
+BOTTOM NAV
+══════════════════════════════════════ */
+.bot-nav {
+position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+width:100%; max-width:480px; height:var(–nav-h);
+background:rgba(22,27,36,.95);
+backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+border-top:1px solid var(–border);
+display:flex; align-items:center; justify-content:space-around;
+z-index:100; padding:0 8px;
+padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+[data-theme=“light”] .bot-nav { background:rgba(255,255,255,.95) }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 4px 6px; border:none; background:transparent; cursor:pointer; border-radius:var(–r-md); transition:var(–ease); position:relative }
+.nav-item:active { transform:scale(.88) }
+.nav-icon-wrap { width:38px; height:38px; border-radius:var(–r-md); display:flex; align-items:center; justify-content:center; font-size:19px; transition:background var(–ease), transform var(–ease) }
+.nav-item.on .nav-icon-wrap { background:var(–accent-pale); transform:translateY(-2px) }
+.nav-lbl { font-family:var(–mono); font-size:8px; font-weight:700; letter-spacing:.5px; color:var(–text-3); text-transform:uppercase; transition:color var(–ease) }
+.nav-item.on .nav-lbl { color:var(–accent) }
+.nav-badge { position:absolute; top:7px; right:calc(50% - 16px); min-width:15px; height:15px; background:var(–danger); border-radius:8px; border:2px solid var(–bg); font-family:var(–mono); font-size:8px; font-weight:700; color:white; padding:0 2px; display:none; align-items:center; justify-content:center }
+.nav-badge.show { display:flex }
+
+/* ══════════════════════════════════════
+KONTROL PAGE
+══════════════════════════════════════ */
+.ctrl-card {
+background:var(–card); border:1px solid var(–border);
+border-radius:var(–r-xl); padding:18px; margin-bottom:10px;
+}
+.ctrl-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px }
+.ctrl-icon-lbl { display:flex; align-items:center; gap:11px }
+.ctrl-ico { width:42px; height:42px; border-radius:var(–r-md); display:flex; align-items:center; justify-content:center; font-size:20px }
+.ico-pump { background:var(–blue-pale) }
+.ico-fan  { background:var(–violet-pale) }
+.ctrl-name { font-family:var(–display); font-size:15px; font-weight:800; color:var(–text) }
+.ctrl-sub  { font-family:var(–mono); font-size:10px; color:var(–text-3); margin-top:2px }
+.seg { display:flex; background:var(–bg2); border:1px solid var(–border); border-radius:var(–r-md); padding:3px; gap:2px; margin-bottom:14px }
+.seg-btn { flex:1; padding:8px; border:none; background:transparent; border-radius:8px; font-family:var(–mono); font-size:11px; font-weight:700; color:var(–text-3); cursor:pointer; transition:var(–ease) }
+.seg-btn.on { background:var(–accent); color:#0f1117 }
+.timer-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px }
+.timer-lbl { font-family:var(–mono); font-size:10px; font-weight:700; color:var(–text-3); letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; display:block }
+.field-wrap { background:var(–bg2); border:1.5px solid var(–border); border-radius:var(–r-md); display:flex; overflow:hidden; transition:border-color var(–ease) }
+.field-wrap:focus-within { border-color:var(–accent) }
+.field-wrap input { flex:1; border:none; background:transparent; padding:10px; font-family:var(–mono); font-size:17px; font-weight:700; color:var(–text); outline:none; width:0 }
+.field-unit { padding:0 10px; font-family:var(–mono); font-size:10px; font-weight:700; color:var(–text-3); border-left:1px solid var(–border); align-self:stretch; display:flex; align-items:center }
+.cta-btn {
+width:100%; padding:13px;
+background:var(–accent); color:#0f1117;
+border:none; border-radius:var(–r-md);
+font-family:var(–display); font-size:14px; font-weight:800;
+cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+box-shadow:0 2px 12px var(–accent-glow); transition:transform var(–ease), box-shadow var(–ease);
+}
+.cta-btn:active { transform:scale(.97); box-shadow:none }
+.cta-btn.blue { background:var(–blue); color:#fff; box-shadow:0 2px 12px var(–blue-pale) }
+.cta-btn.red  { background:var(–danger); color:#fff; box-shadow:0 2px 12px var(–danger-pale) }
+.thresh-row { display:flex; align-items:center; gap:10px; margin-bottom:14px }
+.thresh-row label { font-family:var(–mono); font-size:11px; font-weight:700; color:var(–text-2); white-space:nowrap; flex-shrink:0 }
+.thresh-row .field-wrap { flex:1 }
+.quick-row { display:flex; gap:10px; margin-bottom:12px }
+.mt-8 { margin-top:8px } .mt-12 { margin-top:12px } .mb-12 { margin-bottom:12px }
+
+/* ══════════════════════════════════════
+CHART PAGE
+══════════════════════════════════════ */
+.filter-row { display:flex; gap:6px; margin-bottom:14px }
+.filter-btn { flex:1; padding:8px 4px; border:1.5px solid var(–border); background:var(–card); border-radius:var(–r-md); font-family:var(–mono); font-size:11px; font-weight:700; color:var(–text-3); cursor:pointer; transition:var(–ease) }
+.filter-btn.on { background:var(–accent); border-color:var(–accent); color:#0f1117; box-shadow:0 2px 10px var(–accent-glow) }
+.chart-card { background:var(–card); border:1px solid var(–border); border-radius:var(–r-xl); padding:16px; margin-bottom:10px }
+.chart-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:3px }
+.chart-title { font-family:var(–display); font-size:14px; font-weight:800; color:var(–text) }
+.chart-range { font-family:var(–mono); font-size:9px; font-weight:700; padding:3px 8px; border-radius:4px }
+.chart-sub { font-family:var(–mono); font-size:10px; color:var(–text-3); margin-bottom:12px }
+.chart-wrap { position:relative; height:170px }
+
+/* ══════════════════════════════════════
+NOTIF PAGE
+══════════════════════════════════════ */
+.notif-list { display:flex; flex-direction:column; gap:7px }
+.notif-item {
+background:var(–card); border:1px solid var(–border); border-radius:var(–r-lg);
+padding:13px 15px; display:flex; gap:11px; align-items:flex-start;
+position:relative; overflow:hidden;
+}
+.notif-item::before { content:’’; position:absolute; left:0; top:0; bottom:0; width:2px }
+.ni-danger::before  { background:var(–danger) }
+.ni-warning::before { background:var(–warn) }
+.ni-info::before    { background:var(–accent) }
+.ni-blue::before    { background:var(–blue) }
+.ni-ico { width:34px; height:34px; border-radius:var(–r-sm); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0 }
+.ni-danger  .ni-ico { background:var(–danger-pale) }
+.ni-warning .ni-ico { background:var(–warn-pale) }
+.ni-info    .ni-ico { background:var(–accent-pale) }
+.ni-blue    .ni-ico { background:var(–blue-pale) }
+.ni-body { flex:1 }
+.ni-title { font-family:var(–display); font-size:13px; font-weight:700; color:var(–text); margin-bottom:2px }
+.ni-desc  { font-size:12px; color:var(–text-2) }
+.ni-time  { font-family:var(–mono); font-size:9px; color:var(–text-3); margin-top:4px }
+.ni-dot   { width:7px; height:7px; border-radius:50%; background:var(–accent); flex-shrink:0; margin-top:4px }
+.clear-btn { width:100%; padding:12px; background:var(–bg2); border:1.5px solid var(–border); border-radius:var(–r-md); font-family:var(–mono); font-size:12px; font-weight:700; color:var(–text-3); cursor:pointer; margin-top:4px; transition:var(–ease) }
+.clear-btn:active { background:var(–accent-pale); color:var(–accent); border-color:rgba(0,230,118,.3) }
+
+/* ══════════════════════════════════════
+SETTINGS PAGE
+══════════════════════════════════════ */
+.settings-group { background:var(–card); border:1px solid var(–border); border-radius:var(–r-xl); overflow:hidden; margin-bottom:10px }
+.srow { display:flex; align-items:center; padding:14px 16px; gap:12px; border-bottom:1px solid var(–border); transition:background var(–ease) }
+.srow:last-child { border-bottom:none }
+.srow:active { background:var(–bg2) }
+.srow-ico { width:34px; height:34px; border-radius:var(–r-sm); background:var(–accent-pale); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0 }
+.srow-body { flex:1 }
+.srow-label { font-size:14px; font-weight:600; color:var(–text) }
+.srow-desc  { font-family:var(–mono); font-size:10px; color:var(–text-3); margin-top:2px }
+.srow-action { flex-shrink:0 }
+.s-input { border:1.5px solid var(–border); border-radius:var(–r-sm); padding:7px 9px; font-family:var(–mono); font-size:14px; font-weight:700; color:var(–text); background:var(–bg2); width:80px; outline:none; text-align:center; transition:border-color var(–ease) }
+.s-input:focus { border-color:var(–accent) }
+.calib-btn { padding:8px 13px; background:var(–accent); color:#0f1117; border:none; border-radius:var(–r-sm); font-family:var(–mono); font-size:11px; font-weight:700; cursor:pointer; transition:var(–ease) }
+.calib-btn:active { opacity:.8; transform:scale(.96) }
+.device-card {
+background:var(–card2); border:1px solid var(–border2);
+border-radius:var(–r-xl); padding:18px; margin-bottom:10px; position:relative; overflow:hidden;
+}
+.device-card::before { content:‘📡’; position:absolute; right:14px; top:14px; font-size:40px; opacity:.08 }
+.device-card-label { font-family:var(–mono); font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(–accent); margin-bottom:12px }
+.device-row { display:flex; justify-content:space-between; font-size:12px; padding:5px 0; border-bottom:1px solid var(–border) }
+.device-row:last-child { border-bottom:none }
+.device-key { font-family:var(–mono); color:var(–text-3) }
+.device-val { font-family:var(–mono); font-weight:700; color:var(–text) }
+.online-val { display:flex; align-items:center; gap:5px }
+.online-val::before { content:’’; width:6px; height:6px; background:var(–accent); border-radius:50%; animation:pulseDot 2s infinite }
+.logout-btn { width:100%; padding:13px; background:transparent; color:var(–danger); border:1.5px solid var(–danger); border-radius:var(–r-md); font-family:var(–display); font-size:14px; font-weight:800; cursor:pointer; transition:var(–ease); display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px }
+.logout-btn:active { background:var(–danger-pale) }
+.log-wrap { background:var(–bg); border:1px solid var(–border); border-radius:var(–r-lg); padding:12px; max-height:200px; overflow-y:auto; margin-bottom:12px; font-family:var(–mono) }
+.log-line { font-size:11px; line-height:2; color:var(–accent) }
+.log-line.lw { color:var(–warn) }
+.log-line.le { color:var(–danger) }
+.log-line.li { color:var(–blue) }
+.log-ts { color:var(–text-3); margin-right:6px }
+
+/* ══════════════════════════════════════
+TOAST
+══════════════════════════════════════ */
+.toast-box { position:fixed; top:calc(var(–hdr-h)+8px); left:50%; transform:translateX(-50%); width:calc(100% - 28px); max-width:452px; z-index:999; display:flex; flex-direction:column; gap:7px; pointer-events:none }
+.toast { border-radius:var(–r-md); padding:12px 15px; font-family:var(–mono); font-size:12px; font-weight:700; box-shadow:0 8px 28px rgba(0,0,0,.3); display:flex; align-items:center; gap:10px; animation:toastIn .4s cubic-bezier(.34,1.56,.64,1); pointer-events:auto; letter-spacing:.3px; border:1px solid transparent }
+.toast-ok   { background:var(–bg2); color:var(–accent); border-color:rgba(0,230,118,.3) }
+.toast-warn { background:var(–bg2); color:var(–warn); border-color:rgba(255,171,0,.3) }
+.toast-err  { background:var(–bg2); color:var(–danger); border-color:rgba(255,82,82,.3) }
+.toast-info { background:var(–bg2); color:var(–text); border-color:var(–border2) }
+@keyframes toastIn  { from{opacity:0;transform:translateY(-14px) scale(.92)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes toastOut { to{opacity:0;transform:translateY(-6px) scale(.96)} }
+
+.hidden { display:none!important }
+@keyframes shake { 0%,100%{transform:translateX(0)} 15%{transform:translateX(-7px)} 30%{transform:translateX(7px)} 45%{transform:translateX(-5px)} 60%{transform:translateX(5px)} 75%{transform:translateX(-3px)} 90%{transform:translateX(3px)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+
+</head>
+<body>
+
+<!-- SPLASH -->
+
+<div id="splash">
+  <div class="splash-logo">🌱</div>
+  <div class="splash-brand">Chandika Agrolestari</div>
+  <div class="splash-tag">Smartfarming IoT · v2.1.0</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
+<!-- LOGIN -->
+
+<div id="loginPage">
+  <div class="login-grid-bg"></div>
+  <div class="login-top">
+    <div class="login-pill">
+      <div class="login-pill-dot"></div>
+      <span>CHANDIKA_FARM · A1</span>
+    </div>
+    <h1 class="login-headline">Selamat<br/>Datang <span>Kembali</span></h1>
+    <p class="login-sub">Monitor greenhouse Anda kapanpun</p>
+  </div>
+  <div class="login-form-card">
+    <label class="form-label">Username</label>
+    <div class="form-input-wrap">
+      <span class="form-input-icon">👤</span>
+      <input type="text" class="form-input" id="loginUser" placeholder="Masukkan username" autocomplete="username" autocapitalize="none"/>
+    </div>
+    <label class="form-label" style="margin-top:4px">Password</label>
+    <div class="form-input-wrap">
+      <span class="form-input-icon">🔑</span>
+      <input type="password" class="form-input" id="loginPass" placeholder="Masukkan password"/>
+      <span class="pass-eye" onclick="togglePwd()">👁</span>
+    </div>
+    <div class="login-row">
+      <label class="remember"><input type="checkbox" id="remMe"/><span>Ingat saya</span></label>
+      <span class="forgot" onclick="showToast('📞 Hubungi administrator','warn')">Lupa password?</span>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      <span>→</span> Masuk ke Dashboard
+    </button>
+    <div class="login-err" id="loginErr"><span>⚠</span><span id="loginErrMsg">Username atau password salah.</span></div>
+    <div class="login-footer">CHANDIKA AGROLESTARI © 2024 · v2.1.0</div>
+  </div>
+</div>
+
+<!-- APP -->
+
+<div id="app">
+
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">🌱</div>
+    <div class="hdr-left">
+      <div class="hdr-greet" id="hdrGreet">Chandika Farm</div>
+      <div class="hdr-sub" id="hdrDate">Memuat...</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    <button class="hdr-btn theme-btn" onclick="toggleTheme()" title="Toggle dark/light">🌙</button>
+    <button class="hdr-btn" onclick="nav('notifikasi')" title="Notifikasi">🔔<span class="bell-dot" id="bellDot"></span></button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ████ DASHBOARD ████ -->
+
+  <section class="page on" id="page-dashboard">
+    <!-- Hero -->
+    <div class="hero-card">
+      <div class="hero-card-bg"></div>
+      <div class="hero-top">
+        <div class="hero-info">
+          <div class="hero-tag"><span class="hero-tag-dot"></span>GH-A1 · AEROPONIK</div>
+          <div class="hero-title">🥔 Kentang<br/>Aeroponik</div>
+          <div class="hero-date" id="heroDate">Memuat...</div>
+        </div>
+        <div class="hero-hst">
+          <span class="hst-n" id="hstVal">14</span>
+          <span class="hst-l">HST</span>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <div class="hero-chip">
+          <span class="hero-chip-icon">💧</span>
+          <div>
+            <span class="hc-label">POMPA</span>
+            <span class="hc-value" id="heroP">OFF</span>
+          </div>
+        </div>
+        <div class="hero-chip">
+          <span class="hero-chip-icon">🌀</span>
+          <div>
+            <span class="hc-label">KIPAS</span>
+            <span class="hc-value" id="heroF">OFF</span>
+          </div>
+        </div>
+        <div class="hero-chip">
+          <span class="hero-chip-icon">📡</span>
+          <div>
+            <span class="hc-label">SENSOR</span>
+            <span class="hc-value">5 AKTIF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+```
+<div class="sec">Sensor Realtime <span class="sec-sub" onclick="nav('grafik')">Lihat Grafik →</span></div>
+<div class="stats-row">
+  <div class="stat-chip sc-ph">
+    <div class="stat-chip-bar"></div>
+    <div class="stat-chip-label">pH Air</div>
+    <div class="stat-chip-val"><span id="qPH">5.50</span></div>
+    <div class="stat-chip-badge badge-ok" id="qbPH">OK</div>
+  </div>
+  <div class="stat-chip sc-ec">
+    <div class="stat-chip-bar"></div>
+    <div class="stat-chip-label">EC</div>
+    <div class="stat-chip-val"><span id="qEC">2.60</span><span class="stat-chip-unit">mS</span></div>
+    <div class="stat-chip-badge badge-ok" id="qbEC">OK</div>
+  </div>
+  <div class="stat-chip sc-wt">
+    <div class="stat-chip-bar"></div>
+    <div class="stat-chip-label">Suhu Air</div>
+    <div class="stat-chip-val"><span id="qWT">21.0</span><span class="stat-chip-unit">°C</span></div>
+    <div class="stat-chip-badge badge-ok" id="qbWT">OK</div>
+  </div>
+  <div class="stat-chip sc-at">
+    <div class="stat-chip-bar"></div>
+    <div class="stat-chip-label">Suhu Udara</div>
+    <div class="stat-chip-val"><span id="qAT">23.5</span><span class="stat-chip-unit">°C</span></div>
+    <div class="stat-chip-badge badge-ok" id="qbAT">OK</div>
+  </div>
+  <div class="stat-chip sc-hm">
+    <div class="stat-chip-bar"></div>
+    <div class="stat-chip-label">Humi</div>
+    <div class="stat-chip-val"><span id="qHM">72</span><span class="stat-chip-unit">%</span></div>
+    <div class="stat-chip-badge badge-ok" id="qbHM">OK</div>
+  </div>
+</div>
+
+<div class="sec">Detail Sensor</div>
+<div class="sensor-grid">
+  <div class="sensor-card sc-ph">
+    <div class="sc-accent-line"></div>
+    <span class="sc-icon">🧪</span>
+    <div class="sc-label">pH Air</div>
+    <div class="sc-val"><span id="vPH">5.50</span><span class="sc-trend" id="tPH">→</span></div>
+    <div class="sc-bar-track"><div class="sc-bar-fill" id="bPH" style="width:40%;background:var(--accent)"></div></div>
+    <div class="sc-badge badge-ok" id="bdPH">✓ Netral</div>
+  </div>
+  <div class="sensor-card sc-ec">
+    <div class="sc-accent-line"></div>
+    <span class="sc-icon">⚡</span>
+    <div class="sc-label">EC Air</div>
+    <div class="sc-val"><span id="vEC">2.60</span><span class="sc-unit">mS</span><span class="sc-trend" id="tEC">→</span></div>
+    <div class="sc-bar-track"><div class="sc-bar-fill" id="bEC" style="width:65%;background:var(--blue)"></div></div>
+    <div class="sc-badge badge-ok" id="bdEC">✓ Optimal</div>
+  </div>
+  <div class="sensor-card sc-wt">
+    <div class="sc-accent-line"></div>
+    <span class="sc-icon">🌡️</span>
+    <div class="sc-label">Suhu Air</div>
+    <div class="sc-val"><span id="vWT">21.0</span><span class="sc-unit">°C</span><span class="sc-trend" id="tWT">→</span></div>
+    <div class="sc-bar-track"><div class="sc-bar-fill" id="bWT" style="width:50%;background:var(--warn)"></div></div>
+    <div class="sc-badge badge-ok" id="bdWT">✓ Normal</div>
+  </div>
+  <div class="sensor-card sc-air">
+    <div class="sc-accent-line"></div>
+    <div class="sc-air-row">
+      <div class="sc-air-col">
+        <span class="sc-icon">☁️</span>
+        <div class="sc-label">Udara</div>
+        <div class="sc-val"><span id="vAT">23.5</span><span class="sc-unit">°C</span></div>
+      </div>
+      <div class="sc-air-div"></div>
+      <div class="sc-air-col">
+        <span class="sc-icon">💧</span>
+        <div class="sc-label">Humi</div>
+        <div class="sc-val"><span id="vHM">72</span><span class="sc-unit">%</span></div>
+      </div>
+    </div>
+    <div class="sc-badge badge-ok mt-8" id="bdAir">✓ Normal</div>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:18px">Aksi Cepat</div>
+<div class="qa-scroll">
+  <div class="qa-card qa-green" onclick="nav('kontrol')">
+    <div class="qa-icon">💧</div>
+    <div class="qa-label">Kontrol Pompa</div>
+  </div>
+  <div class="qa-card qa-violet" onclick="nav('kontrol')">
+    <div class="qa-icon">🌀</div>
+    <div class="qa-label">Kontrol Kipas</div>
+  </div>
+  <div class="qa-card qa-warn" onclick="quickAll(true)">
+    <div class="qa-icon">▶️</div>
+    <div class="qa-label">Nyalakan Semua</div>
+  </div>
+  <div class="qa-card qa-blue" onclick="nav('settings')">
+    <div class="qa-icon">🧪</div>
+    <div class="qa-label">Kalibrasi</div>
+  </div>
+  <div class="qa-card qa-teal" onclick="nav('grafik')">
+    <div class="qa-icon">📈</div>
+    <div class="qa-label">Lihat Grafik</div>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:18px">Jadwal Semprot</div>
+<div class="schedule-card">
+  <div class="schedule-header">
+    <div class="schedule-title">Minggu Ini</div>
+    <div class="schedule-month" id="schMonth">—</div>
+  </div>
+  <div class="day-row" id="dayRow"></div>
+  <div class="schedule-next">
+    <div class="next-ico">💦</div>
+    <div>
+      <div class="next-label">Semprot berikutnya</div>
+      <div class="next-val" id="nextSpray">—</div>
+    </div>
+    <div class="next-badge">SCHED</div>
+  </div>
+</div>
+
+<div class="sec">Aktivitas Terbaru <span class="sec-sub" onclick="nav('notifikasi')">Semua →</span></div>
+<div class="activity-list" id="activityList"></div>
+<div style="height:10px"></div>
+```
+
+  </section>
+
+  <!-- ████ KONTROL ████ -->
+
+  <section class="page" id="page-kontrol">
+    <div class="sec" style="margin-top:4px">Relay Control</div>
+    <div class="relay-row mb-12">
+      <div class="relay-card">
+        <div class="relay-top">
+          <div class="relay-icon ri-pump">💧</div>
+          <div class="tl-wrap">
+            <span class="tl" id="pTL" style="color:var(--text-3)">OFF</span>
+            <label class="toggle"><input type="checkbox" id="pToggle" onchange="onPump()"/><span class="t-track"></span><span class="t-thumb"></span></label>
+          </div>
+        </div>
+        <div class="relay-name">Pompa Air</div>
+        <div class="relay-mode" id="pMode">Mode Manual</div>
+        <div class="relay-status rs-off" id="pPill"><span class="rs-dot"></span>OFF</div>
+      </div>
+      <div class="relay-card">
+        <div class="relay-top">
+          <div class="relay-icon ri-fan">🌀</div>
+          <div class="tl-wrap">
+            <span class="tl" id="fTL" style="color:var(--text-3)">OFF</span>
+            <label class="toggle"><input type="checkbox" id="fToggle" onchange="onFan()"/><span class="t-track"></span><span class="t-thumb"></span></label>
+          </div>
+        </div>
+        <div class="relay-name">Kipas Angin</div>
+        <div class="relay-mode" id="fMode">Mode Manual</div>
+        <div class="relay-status rs-off" id="fPill"><span class="rs-dot"></span>OFF</div>
+      </div>
+    </div>
+
+```
+<div class="ctrl-card">
+  <div class="ctrl-head">
+    <div class="ctrl-icon-lbl">
+      <div class="ctrl-ico ico-pump">💧</div>
+      <div><div class="ctrl-name">Pompa Air</div><div class="ctrl-sub" id="pStatusTxt">Manual — OFF</div></div>
+    </div>
+  </div>
+  <div class="seg">
+    <button class="seg-btn on" id="pMM" onclick="setPumpMode('manual')">🖐 Manual</button>
+    <button class="seg-btn"    id="pMA" onclick="setPumpMode('auto')">⏱ Timer</button>
+  </div>
+  <div id="pTimerBox" class="hidden">
+    <div class="timer-grid">
+      <div><span class="timer-lbl">Durasi ON</span><div class="field-wrap"><input type="number" id="pOn" value="30" min="1" max="3600"/><span class="field-unit">detik</span></div></div>
+      <div><span class="timer-lbl">Durasi OFF</span><div class="field-wrap"><input type="number" id="pOff" value="60" min="1" max="3600"/><span class="field-unit">detik</span></div></div>
+    </div>
+    <button class="cta-btn" onclick="applyPumpTimer()">✓ Terapkan Timer</button>
+  </div>
+</div>
+
+<div class="ctrl-card">
+  <div class="ctrl-head">
+    <div class="ctrl-icon-lbl">
+      <div class="ctrl-ico ico-fan">🌀</div>
+      <div><div class="ctrl-name">Kipas Angin</div><div class="ctrl-sub" id="fStatusTxt">Manual — OFF</div></div>
+    </div>
+  </div>
+  <div class="seg">
+    <button class="seg-btn on" id="fMM" onclick="setFanMode('manual')">🖐 Manual</button>
+    <button class="seg-btn"    id="fMA" onclick="setFanMode('auto')">🌡 Auto Suhu</button>
+  </div>
+  <div id="fAutoBox" class="hidden">
+    <div class="thresh-row">
+      <label>Aktif jika suhu &gt;</label>
+      <div class="field-wrap"><input type="number" id="fThresh" value="25" min="10" max="50"/><span class="field-unit">°C</span></div>
+    </div>
+    <button class="cta-btn mt-12" onclick="applyFanAuto()">✓ Terapkan</button>
+  </div>
+</div>
+
+<div class="sec">Quick Actions</div>
+<div class="quick-row">
+  <button class="cta-btn blue" style="flex:1" onclick="quickAll(true)">▶ Nyalakan Semua</button>
+  <button class="cta-btn red"  style="flex:1" onclick="quickAll(false)">⏹ Matikan Semua</button>
+</div>
+<div style="height:10px"></div>
+```
+
+  </section>
+
+  <!-- ████ GRAFIK ████ -->
+
+  <section class="page" id="page-grafik">
+    <div class="sec" style="margin-top:4px">Grafik Sensor</div>
+    <div class="filter-row">
+      <button class="filter-btn on" onclick="setFilter(this,'1d')">1 Hari</button>
+      <button class="filter-btn" onclick="setFilter(this,'7d')">7 Hari</button>
+      <button class="filter-btn" onclick="setFilter(this,'30d')">30 Hari</button>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><div class="chart-title">🧪 pH Air</div><span class="chart-range badge-ok">5.0–6.0</span></div>
+      <div class="chart-sub">Target optimal kentang aeroponik</div>
+      <div class="chart-wrap"><canvas id="cPH"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><div class="chart-title">⚡ EC Air</div><span class="chart-range" style="background:var(--blue-pale);color:var(--blue);font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px">2.0–3.5 mS</span></div>
+      <div class="chart-sub">Konduktivitas larutan nutrisi</div>
+      <div class="chart-wrap"><canvas id="cEC"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><div class="chart-title">🌡️ Suhu Air</div><span class="chart-range" style="background:var(--warn-pale);color:var(--warn);font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px">18–24°C</span></div>
+      <div class="chart-sub">Suhu zona akar</div>
+      <div class="chart-wrap"><canvas id="cWT"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head"><div class="chart-title">☁️ Suhu & Kelembapan</div></div>
+      <div class="chart-sub">Kondisi lingkungan greenhouse</div>
+      <div class="chart-wrap"><canvas id="cAir"></canvas></div>
+    </div>
+    <div style="height:10px"></div>
+  </section>
+
+  <!-- ████ NOTIFIKASI ████ -->
+
+  <section class="page" id="page-notifikasi">
+    <div class="sec" style="margin-top:4px">Notifikasi</div>
+    <div class="notif-list" id="notifList"></div>
+    <button class="clear-btn mt-8" onclick="clearNotif()">✓ Tandai Semua Dibaca</button>
+    <div style="height:10px"></div>
+  </section>
+
+  <!-- ████ SETTINGS ████ -->
+
+  <section class="page" id="page-settings">
+    <div class="sec" style="margin-top:4px">Settings</div>
+
+```
+<div class="settings-group">
+  <div class="srow">
+    <div class="srow-ico">👤</div>
+    <div class="srow-body"><div class="srow-label" id="settingsUser">admin</div><div class="srow-desc">Pengguna aktif</div></div>
+    <div class="srow-action" style="color:var(--accent)">✓</div>
+  </div>
+  <div class="srow" onclick="changePass()">
+    <div class="srow-ico">🔑</div>
+    <div class="srow-body"><div class="srow-label">Ganti Password</div><div class="srow-desc">Ubah kata sandi akun</div></div>
+    <div class="srow-action" style="color:var(--text-3)">›</div>
+  </div>
+  <div class="srow" onclick="toggleTheme()">
+    <div class="srow-ico">🌙</div>
+    <div class="srow-body"><div class="srow-label">Tampilan</div><div class="srow-desc" id="themeDesc">Mode Gelap aktif</div></div>
+    <div class="srow-action" style="color:var(--text-3)">›</div>
+  </div>
+</div>
+
+<div class="device-card">
+  <div class="device-card-label">ESP32 — GREENHOUSE CONTROLLER</div>
+  <div class="device-row"><span class="device-key">Status</span><span class="device-val online-val">Online</span></div>
+  <div class="device-row"><span class="device-key">IP Address</span><span class="device-val">192.168.1.42</span></div>
+  <div class="device-row"><span class="device-key">Firmware</span><span class="device-val">v2.4.1</span></div>
+  <div class="device-row"><span class="device-key">Uptime</span><span class="device-val" id="uptimeVal">00:00:00</span></div>
+  <div class="device-row"><span class="device-key">WiFi</span><span class="device-val">📶 -58 dBm</span></div>
+</div>
+
+<div class="sec">Kalibrasi Sensor</div>
+<div class="settings-group">
+  <div class="srow">
+    <div class="srow-ico">🧪</div>
+    <div class="srow-body"><div class="srow-label">Kalibrasi pH</div><div class="srow-desc">Nilai referensi buffer</div></div>
+    <div class="srow-action" style="display:flex;gap:6px;align-items:center">
+      <input type="number" class="s-input" id="calibPH" value="7.00" step="0.01"/>
+      <button class="calib-btn" onclick="calibPH()">OK</button>
+    </div>
+  </div>
+  <div class="srow">
+    <div class="srow-ico">⚡</div>
+    <div class="srow-body"><div class="srow-label">Kalibrasi EC</div><div class="srow-desc">Larutan standar EC</div></div>
+    <div class="srow-action" style="display:flex;gap:6px;align-items:center">
+      <input type="number" class="s-input" id="calibEC" value="1.41" step="0.01"/>
+      <button class="calib-btn" onclick="calibEC()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="sec">Target Sensor</div>
+<div class="settings-group">
+  <div class="srow"><div class="srow-ico">🧪</div><div class="srow-body"><div class="srow-label">Target pH</div><div class="srow-desc">Min – Max</div></div><div class="srow-action" style="display:flex;gap:4px;align-items:center"><input type="number" class="s-input" id="tPHMin" value="5.0" step="0.1" style="width:58px"/><span style="color:var(--text-3);font-size:12px">–</span><input type="number" class="s-input" id="tPHMax" value="6.0" step="0.1" style="width:58px"/></div></div>
+  <div class="srow"><div class="srow-ico">⚡</div><div class="srow-body"><div class="srow-label">Target EC</div><div class="srow-desc">mS/cm</div></div><div class="srow-action" style="display:flex;gap:4px;align-items:center"><input type="number" class="s-input" id="tECMin" value="2.0" step="0.1" style="width:58px"/><span style="color:var(--text-3);font-size:12px">–</span><input type="number" class="s-input" id="tECMax" value="3.5" step="0.1" style="width:58px"/></div></div>
+  <div class="srow"><div class="srow-ico">🌡️</div><div class="srow-body"><div class="srow-label">Target Suhu Air</div><div class="srow-desc">°C</div></div><div class="srow-action" style="display:flex;gap:4px;align-items:center"><input type="number" class="s-input" id="tWTMin" value="18" step="1" style="width:58px"/><span style="color:var(--text-3);font-size:12px">–</span><input type="number" class="s-input" id="tWTMax" value="24" step="1" style="width:58px"/></div></div>
+</div>
+
+<div class="sec">Data Tanaman</div>
+<div class="settings-group">
+  <div class="srow"><div class="srow-ico">📅</div><div class="srow-body"><div class="srow-label">Tanggal Tanam</div><div class="srow-desc">Auto-hitung HST</div></div><div class="srow-action"><input type="date" class="s-input" id="plantDate" style="width:140px;font-size:12px;font-family:var(--mono)" onchange="updateHST()"/></div></div>
+  <div class="srow"><div class="srow-ico">🥔</div><div class="srow-body"><div class="srow-label">Jenis Tanaman</div><div class="srow-desc">Label dashboard</div></div><div class="srow-action"><select class="s-input" id="plantType" style="width:110px;font-size:12px"><option selected>Kentang</option><option>Selada</option><option>Pakcoy</option><option>Tomat</option><option>Wortel</option></select></div></div>
+</div>
+
+<div class="sec">System Log</div>
+<div class="log-wrap" id="logWrap"></div>
+
+<button class="cta-btn mb-12" onclick="saveSettings()">💾 Simpan Semua Setting</button>
+<button class="logout-btn" onclick="doLogout()">🚪 Keluar / Logout</button>
+<div style="height:20px"></div>
+```
+
+  </section>
+
+</main>
+
+<nav class="bot-nav">
+  <button class="nav-item on" data-p="dashboard" onclick="nav('dashboard')">
+    <div class="nav-icon-wrap">🏠</div><span class="nav-lbl">Home</span>
+  </button>
+  <button class="nav-item" data-p="kontrol" onclick="nav('kontrol')">
+    <div class="nav-icon-wrap">⚙️</div><span class="nav-lbl">Kontrol</span>
+  </button>
+  <button class="nav-item" data-p="grafik" onclick="nav('grafik')">
+    <div class="nav-icon-wrap">📈</div><span class="nav-lbl">Grafik</span>
+  </button>
+  <button class="nav-item" data-p="notifikasi" onclick="nav('notifikasi')">
+    <div class="nav-icon-wrap">🔔</div><span class="nav-lbl">Notif</span>
+    <span class="nav-badge" id="navBadge">0</span>
+  </button>
+  <button class="nav-item" data-p="settings" onclick="nav('settings')">
+    <div class="nav-icon-wrap">⚙</div><span class="nav-lbl">Settings</span>
+  </button>
+</nav>
+</div><!-- #app -->
+
+<div class="toast-box" id="toastBox"></div>
+
+<script>
+/* ══════════════════════════════════════
+   ACCOUNTS
+══════════════════════════════════════ */
+const ACCOUNTS = [
+  {username:'admin',    password:'chandika2024', role:'Administrator'},
+  {username:'operator', password:'farm2024',     role:'Operator'},
+  {username:'viewer',   password:'lihat123',     role:'Viewer'},
+];
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+const S = {
+  s:{ph:5.50, ec:2.60, wt:21.0, at:23.5, hm:72},
+  prev:{ph:5.50, ec:2.60, wt:21.0, at:23.5, hm:72},
+  relay:{pump:false, fan:false},
+  pumpMode:'manual', fanMode:'manual', fanThresh:25,
+  pTimer:{on:30, off:60, timeout:null, phase:'on'},
+  tgt:{phMin:5.0, phMax:6.0, ecMin:2.0, ecMax:3.5, wtMin:18, wtMax:24},
+  notifs:[], unread:0, uptime:0, hst:14,
+  hPH:[], hEC:[], hWT:[], hAT:[], hHM:[],
+  charts:{}, chartsInit:false,
+  iv:{sensor:null, clock:null, up:null},
+  logs:[], user:null,
+  alertCD:{ph:0, ec:0, t:0},
+  theme:'dark',
+};
+
+/* ══════════════════════════════════════
+   THEME
+══════════════════════════════════════ */
+function toggleTheme() {
+  S.theme = S.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', S.theme);
+  const btn = document.querySelector('.theme-btn');
+  if (btn) btn.textContent = S.theme === 'dark' ? '🌙' : '☀️';
+  const desc = document.getElementById('themeDesc');
+  if (desc) desc.textContent = S.theme === 'dark' ? 'Mode Gelap aktif' : 'Mode Terang aktif';
+  localStorage.setItem('ca2_theme', S.theme);
+  showToast(S.theme === 'dark' ? '🌙 Mode Gelap' : '☀️ Mode Terang', 'info');
+}
+function loadTheme() {
+  const t = localStorage.getItem('ca2_theme') || 'dark';
+  S.theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.querySelector('.theme-btn');
+  if (btn) btn.textContent = t === 'dark' ? '🌙' : '☀️';
+}
+
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin() });
+document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus() });
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const rem = document.getElementById('remMe').checked;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(15,17,23,.3);border-top-color:#0f1117;border-radius:50%;animation:spin .6s linear infinite"></div> Memverifikasi...';
+  err.classList.remove('show');
+  setTimeout(() => {
+    const acct = ACCOUNTS.find(a => a.username.toLowerCase()===u.toLowerCase() && a.password===p);
+    if (acct) {
+      S.user = acct;
+      const sess = JSON.stringify({username:acct.username, role:acct.role});
+      rem ? localStorage.setItem('ca2',sess) : sessionStorage.setItem('ca2',sess);
+      document.getElementById('loginPage').style.display = 'none';
+      startApp(acct);
+    } else {
+      err.classList.add('show');
+      document.getElementById('loginPass').value = '';
+      btn.disabled = false;
+      btn.innerHTML = '<span>→</span> Masuk ke Dashboard';
+      document.querySelector('.login-form-card').style.animation='shake .4s ease';
+      setTimeout(()=>document.querySelector('.login-form-card').style.animation='',400);
+    }
+  }, 800);
+}
+
+function doLogout() {
+  if(!confirm('Yakin ingin keluar?')) return;
+  localStorage.removeItem('ca2'); sessionStorage.removeItem('ca2');
+  stopIv(); S.user = null; S.chartsInit = false;
+  Object.values(S.charts).forEach(c=>{ try{c.destroy()}catch(e){} });
+  S.charts = {};
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function togglePwd() {
+  const i=document.getElementById('loginPass'), b=document.querySelector('.pass-eye');
+  i.type=i.type==='password'?'text':'password';
+  b.textContent=i.type==='password'?'👁':'🙈';
+}
+function changePass() {
+  const np=prompt('Masukkan password baru (min. 6 karakter):');
+  if(np && np.length>=6){ showToast('✓ Password berhasil diubah','ok'); addLog('info','Password diubah'); }
+  else if(np){ showToast('⚠ Min. 6 karakter','warn'); }
+}
+
+/* ══════════════════════════════════════
+   APP START
+══════════════════════════════════════ */
+function startApp(acct) {
+  document.getElementById('app').classList.add('on');
+  document.getElementById('hdrGreet').textContent = `Chandika Farm`;
+  document.getElementById('settingsUser').textContent = `${acct.username} (${acct.role})`;
+  nav('dashboard');
+  seedHistory(); seedNotifs(); setDefaultDate();
+  updateClock(); updateSensorUI(); syncRelays(); renderNotifs(); updateBadge();
+  buildSchedule(); startIv();
+  addLog('info',`Login: ${acct.username} (${acct.role})`);
+  addLog('info','Semua sensor aktif — monitoring dimulai');
+}
+function startIv() {
+  stopIv();
+  S.iv.clock  = setInterval(updateClock,    1000);
+  S.iv.up     = setInterval(uptimeTick,     1000);
+  S.iv.sensor = setInterval(simulateSensor, 3000);
+}
+function stopIv() { Object.values(S.iv).forEach(id=>id&&clearInterval(id)); S.iv={sensor:null,clock:null,up:null}; }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ stopIv(); } else if(S.user){ startIv(); } });
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function nav(p) {
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.querySelector(`[data-p="${p}"]`).classList.add('on');
+  if(p==='grafik') setTimeout(renderCharts, 80);
+  if(p==='notifikasi') { S.notifs.forEach(n=>n.r=true); S.unread=0; updateBadge(); renderNotifs(); }
+}
+
+/* ══════════════════════════════════════
+   CLOCK  ← BUG FIX: fixed broken ternary
+══════════════════════════════════════ */
+function updateClock() {
+  const now=new Date(), h=now.getHours();
+  const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const dateStr=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const timeStr=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  // FIX: was malformed nested string literals — now proper ternary chain
+  const greet = h < 11 ? 'Pagi' : h < 15 ? 'Siang' : h < 18 ? 'Sore' : 'Malam';
+  document.getElementById('hdrSub') && (document.getElementById('hdrSub').textContent=greet);
+  document.getElementById('hdrDate').textContent=`${dateStr} · ${timeStr}`;
+  document.getElementById('heroDate').textContent=`${dateStr} · ${timeStr}`;
+}
+
+function uptimeTick() {
+  S.uptime++;
+  const h=String(Math.floor(S.uptime/3600)).padStart(2,'0');
+  const m=String(Math.floor((S.uptime%3600)/60)).padStart(2,'0');
+  const s=String(S.uptime%60).padStart(2,'0');
+  const el=document.getElementById('uptimeVal'); if(el) el.textContent=`${h}:${m}:${s}`;
+}
+
+/* ══════════════════════════════════════
+   SENSOR SIMULATION
+══════════════════════════════════════ */
+function rw(v,mn,mx,st){ return Math.max(mn,Math.min(mx,parseFloat((v+(Math.random()-.5)*st).toFixed(2)))); }
+
+function simulateSensor() {
+  const prev={...S.s};
+  S.s.ph=rw(S.s.ph,4.5,7.5,.06); S.s.ec=rw(S.s.ec,1.0,4.5,.07);
+  S.s.wt=rw(S.s.wt,15,30,.15); S.s.at=rw(S.s.at,18,36,.18); S.s.hm=rw(S.s.hm,50,92,.5);
+  S.prev=prev;
+  updateSensorUI(); checkAlerts(); pushHistory();
+  if(S.fanMode==='auto'){ const should=S.s.at>S.fanThresh; if(should!==S.relay.fan){ S.relay.fan=should; syncRelays(); addNotif('warning','🌀 Kipas Auto',`Suhu ${S.s.at.toFixed(1)}°C ${should?'melebihi':'di bawah'} threshold`,'info'); } }
+}
+
+/* ══════════════════════════════════════
+   SENSOR UI
+══════════════════════════════════════ */
+function trend(cur,prev){ return cur>prev+.05?'↑':cur<prev-.05?'↓':'→'; }
+function trendCls(cur,prev){ return cur>prev+.05?'trend-up':cur<prev-.05?'trend-down':'trend-flat'; }
+
+function updateSensorUI() {
+  const s=S.s, p=S.prev, t=S.tgt;
+  setText('qPH',s.ph.toFixed(2)); setText('qEC',s.ec.toFixed(2));
+  setText('qWT',s.wt.toFixed(1)); setText('qAT',s.at.toFixed(1)); setText('qHM',Math.round(s.hm));
+
+  const phSt=s.ph<t.phMin?'bad':s.ph>t.phMax?'warn':'ok';
+  const phLbl=s.ph<t.phMin?'ASAM':s.ph>t.phMax?'BASA':'OK';
+  setStat('qbPH',phSt,phLbl); setCard('vPH','tPH','bPH','bdPH',s.ph.toFixed(2),s.ph,p.ph,phSt,s.ph<t.phMin?'⚠ Asam':s.ph>t.phMax?'⚠ Basa':'✓ Netral',s.ph/14*100,'var(--accent)');
+
+  const ecSt=s.ec<t.ecMin?'warn':s.ec>t.ecMax?'bad':'ok';
+  const ecLbl=s.ec<t.ecMin?'KURANG':s.ec>t.ecMax?'LEBIH':'OK';
+  setStat('qbEC',ecSt,ecLbl); setCard('vEC','tEC','bEC','bdEC',s.ec.toFixed(2),s.ec,p.ec,ecSt,s.ec<t.ecMin?'⚠ Kurang':s.ec>t.ecMax?'⚠ Lebih':'✓ Optimal',s.ec/5*100,'var(--blue)');
+
+  const wtSt=s.wt<t.wtMin?'warn':s.wt>t.wtMax?'bad':'ok';
+  const wtLbl=s.wt<t.wtMin?'DINGIN':s.wt>t.wtMax?'PANAS':'OK';
+  setStat('qbWT',wtSt,wtLbl); setCard('vWT','tWT','bWT','bdWT',s.wt.toFixed(1),s.wt,p.wt,wtSt,s.wt<t.wtMin?'⚠ Dingin':s.wt>t.wtMax?'⚠ Panas':'✓ Normal',(s.wt-10)/25*100,'var(--warn)');
+
+  setText('vAT',s.at.toFixed(1)); setText('vHM',Math.round(s.hm));
+  const atSt=s.at>35||s.hm>88?'bad':s.at>30?'warn':'ok';
+  setStat('qbAT',atSt,s.at>35?'EKSTREM':s.at>30?'TINGGI':'OK');
+  setStat('qbHM','ok','OK');
+  const bdAir=document.getElementById('bdAir');
+  if(bdAir){ bdAir.textContent=atSt==='bad'?'⚠ Ekstrem':atSt==='warn'?'⚠ Tinggi':'✓ Normal'; bdAir.className=`sc-badge badge-${atSt} mt-8`; }
+  setText('heroP',S.relay.pump?'ON':'OFF'); setText('heroF',S.relay.fan?'ON':'OFF');
+}
+
+function setCard(valId,trendId,barId,badgeId,dispVal,cur,prev,st,lbl,pct,color){
+  setText(valId,dispVal);
+  const tr=document.getElementById(trendId);
+  if(tr){ tr.textContent=trend(cur,prev); tr.className='sc-trend '+trendCls(cur,prev); }
+  const bar=document.getElementById(barId);
+  if(bar){ bar.style.width=Math.min(100,Math.max(0,pct))+'%'; bar.style.background=st==='ok'?color:st==='warn'?'var(--warn)':'var(--danger)'; }
+  const bd=document.getElementById(badgeId);
+  if(bd){ bd.textContent=lbl; bd.className=`sc-badge badge-${st}`; }
+}
+function setStat(id,st,lbl){ const el=document.getElementById(id); if(!el) return; el.textContent=lbl; el.className=`stat-chip-badge badge-${st}`; }
+function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+
+/* ══════════════════════════════════════
+   RELAY
+══════════════════════════════════════ */
+function syncRelays() {
+  ['pump','fan'].forEach(k=>{
+    const on=S.relay[k];
+    const tl=document.getElementById(k==='pump'?'pTL':'fTL');
+    const pg=document.getElementById(k==='pump'?'pPill':'fPill');
+    const tg=document.getElementById(k==='pump'?'pToggle':'fToggle');
+    if(tl){ tl.textContent=on?'ON':'OFF'; tl.style.color=on?'var(--accent)':'var(--text-3)'; }
+    if(pg){ pg.className='relay-status '+(on?'rs-on':'rs-off'); pg.innerHTML=`<span class="rs-dot"></span>${on?'ON':'OFF'}`; }
+    if(tg) tg.checked=on;
+  });
+}
+function onPump(){ if(S.pumpMode==='auto') return; S.relay.pump=document.getElementById('pToggle').checked; syncRelays(); updatePumpTxt(); const m=S.relay.pump?'ON':'OFF'; showToast('💧 Pompa: '+m,S.relay.pump?'ok':'info'); addNotif('info','💧 Pompa '+m,'Relay pompa diubah manual','relay'); addLog('info','Relay Pompa: '+m); }
+function onFan(){  if(S.fanMode==='auto') return; S.relay.fan=document.getElementById('fToggle').checked; syncRelays(); updateFanTxt(); const m=S.relay.fan?'ON':'OFF'; showToast('🌀 Kipas: '+m,S.relay.fan?'ok':'info'); addNotif('info','🌀 Kipas '+m,'Relay kipas diubah manual','relay'); addLog('info','Relay Kipas: '+m); }
+function setPumpMode(m){ S.pumpMode=m; document.getElementById('pMM').className='seg-btn'+(m==='manual'?' on':''); document.getElementById('pMA').className='seg-btn'+(m==='auto'?' on':''); document.getElementById('pTimerBox').classList.toggle('hidden',m!=='auto'); if(m==='manual'&&S.pTimer.timeout) clearTimeout(S.pTimer.timeout); updatePumpTxt(); }
+function setFanMode(m){ S.fanMode=m; document.getElementById('fMM').className='seg-btn'+(m==='manual'?' on':''); document.getElementById('fMA').className='seg-btn'+(m==='auto'?' on':''); document.getElementById('fAutoBox').classList.toggle('hidden',m!=='auto'); updateFanTxt(); }
+function updatePumpTxt(){ document.getElementById('pStatusTxt').textContent=S.pumpMode==='manual'?`Manual — ${S.relay.pump?'ON':'OFF'}`:`Timer — ON:${S.pTimer.on}s / OFF:${S.pTimer.off}s`; document.getElementById('pMode').textContent=`Mode ${S.pumpMode==='manual'?'Manual':'Timer Otomatis'}`; }
+function updateFanTxt(){  document.getElementById('fStatusTxt').textContent=S.fanMode==='manual'?`Manual — ${S.relay.fan?'ON':'OFF'}`:`Auto Suhu — Threshold: ${S.fanThresh}°C`; document.getElementById('fMode').textContent=`Mode ${S.fanMode==='manual'?'Manual':'Auto Suhu'}`; }
+function applyPumpTimer(){ const on=parseInt(document.getElementById('pOn').value)||30; const off=parseInt(document.getElementById('pOff').value)||60; S.pTimer.on=on; S.pTimer.off=off; if(S.pTimer.timeout) clearTimeout(S.pTimer.timeout); function tick(){ S.relay.pump=S.pTimer.phase==='on'; syncRelays(); const nx=S.pTimer.phase==='on'?on:off; S.pTimer.phase=S.pTimer.phase==='on'?'off':'on'; S.pTimer.timeout=setTimeout(tick,nx*1000); } S.pTimer.phase='on'; tick(); updatePumpTxt(); showToast(`⏱ Timer: ON ${on}s / OFF ${off}s`,'ok'); addLog('info',`Timer pompa: ON=${on}s OFF=${off}s`); }
+function applyFanAuto(){ S.fanThresh=parseFloat(document.getElementById('fThresh').value)||25; updateFanTxt(); showToast(`🌡 Kipas auto > ${S.fanThresh}°C`,'ok'); addLog('info',`Fan threshold: ${S.fanThresh}°C`); }
+function quickAll(on){ S.relay.pump=on; S.relay.fan=on; syncRelays(); updatePumpTxt(); updateFanTxt(); showToast(on?'▶ Semua relay ON':'⏹ Semua relay OFF',on?'ok':'info'); addNotif('info',on?'▶ Semua ON':'⏹ Semua OFF','Quick action','relay'); addLog('info','Quick: '+(on?'semua ON':'semua OFF')); }
+
+/* ══════════════════════════════════════
+   ALERTS
+══════════════════════════════════════ */
+function checkAlerts(){
+  const s=S.s,t=S.tgt,now=Date.now();
+  if(!(s.ph>=t.phMin&&s.ph<=t.phMax)&&now-S.alertCD.ph>60000){ addNotif('danger','⚠ pH Tidak Normal',`pH: ${s.ph.toFixed(2)} (target ${t.phMin}–${t.phMax})`,'ph'); showToast(`⚠ pH: ${s.ph.toFixed(2)}`,'warn'); S.alertCD.ph=now; }
+  if(!(s.ec>=t.ecMin&&s.ec<=t.ecMax)&&now-S.alertCD.ec>60000){ addNotif('warning','⚡ EC Di Luar Range',`EC: ${s.ec.toFixed(2)} mS/cm`,'ec'); showToast(`⚡ EC: ${s.ec.toFixed(2)} mS`,'warn'); S.alertCD.ec=now; }
+  if(s.at>35&&now-S.alertCD.t>60000){ addNotif('danger','🌡️ Suhu Ekstrem!',`${s.at.toFixed(1)}°C — cek ventilasi`,'temp'); showToast(`🌡️ Suhu: ${s.at.toFixed(1)}°C`,'err'); S.alertCD.t=now; }
+}
+
+/* ══════════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════════ */
+function addNotif(type,title,desc,tag){
+  S.notifs.unshift({id:Date.now(),type,title,desc,tag,time:new Date(),r:false});
+  S.unread++;
+  if(S.notifs.length>40) S.notifs.pop();
+  renderNotifs(); updateBadge(); renderActivity();
+}
+function renderNotifs(){
+  const list=document.getElementById('notifList'); if(!list) return;
+  const map={danger:{c:'ni-danger',i:'🚨'},warning:{c:'ni-warning',i:'⚠️'},info:{c:'ni-info',i:'✅'},blue:{c:'ni-blue',i:'ℹ️'}};
+  if(!S.notifs.length){ list.innerHTML=`<div style="text-align:center;padding:40px 16px;color:var(--text-3)"><div style="font-size:40px;margin-bottom:10px">🎉</div><div style="font-family:var(--mono);font-size:13px;font-weight:700">TIDAK ADA NOTIFIKASI</div><div style="font-size:12px;margin-top:6px">Semua sistem normal</div></div>`; return; }
+  list.innerHTML=S.notifs.map(n=>{ const t=map[n.type]||map.info; return `<div class="notif-item ${t.c}"><div class="ni-ico">${t.i}</div><div class="ni-body"><div class="ni-title">${n.title}</div><div class="ni-desc">${n.desc}</div><div class="ni-time">${timeAgo(n.time)}</div></div>${!n.r?'<div class="ni-dot"></div>':''}</div>`; }).join('');
+}
+function renderActivity(){
+  const list=document.getElementById('activityList'); if(!list) return;
+  const map={danger:{c:'ai-red',i:'🚨'},warning:{c:'ai-amber',i:'⚠️'},info:{c:'ai-green',i:'✅'},blue:{c:'ai-blue',i:'ℹ️'}};
+  const recent=S.notifs.slice(0,4);
+  if(!recent.length){ list.innerHTML=''; return; }
+  list.innerHTML=recent.map(n=>{ const t=map[n.type]||map.info; return `<div class="activity-item ${t.c}"><div class="ai-icon">${t.i}</div><div class="ai-body"><div class="ai-title">${n.title}</div><div class="ai-desc">${n.desc}</div><div class="ai-time">${timeAgo(n.time)}</div></div>${!n.r?'<div class="ai-unread"></div>':''}</div>`; }).join('');
+}
+function clearNotif(){ S.notifs.forEach(n=>n.r=true); S.unread=0; updateBadge(); renderNotifs(); showToast('✓ Semua ditandai dibaca','ok'); }
+function updateBadge(){
+  const nb=document.getElementById('navBadge'), bd=document.getElementById('bellDot');
+  if(S.unread>0){ nb.textContent=S.unread>9?'9+':S.unread; nb.classList.add('show'); if(bd) bd.style.display='block'; }
+  else { nb.classList.remove('show'); if(bd) bd.style.display='none'; }
+}
+function timeAgo(d){ const s=Math.floor((Date.now()-d.getTime())/1000); if(s<60) return s+'d lalu'; if(s<3600) return Math.floor(s/60)+'m lalu'; return Math.floor(s/3600)+'j lalu'; }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg,type='ok'){
+  const box=document.getElementById('toastBox');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;
+  t.innerHTML=`<span>${msg}</span>`;
+  box.appendChild(t);
+  setTimeout(()=>{ t.style.animation='toastOut .35s ease forwards'; setTimeout(()=>t.remove(),380); },3000);
+}
+
+/* ══════════════════════════════════════
+   CHARTS
+══════════════════════════════════════ */
+function pushHistory(){
+  const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const push=(a,v)=>{ a.push({x:now,y:v}); if(a.length>20) a.shift(); };
+  push(S.hPH,S.s.ph); push(S.hEC,S.s.ec); push(S.hWT,S.s.wt); push(S.hAT,S.s.at); push(S.hHM,S.s.hm);
+  if(document.getElementById('page-grafik').classList.contains('on')&&S.chartsInit) updateCharts();
+}
+
+function getChartColors() {
+  return document.documentElement.getAttribute('data-theme') === 'dark'
+    ? { grid:'rgba(255,255,255,.05)', tick:'#4a5568', tooltip:'#161b24' }
+    : { grid:'rgba(0,0,0,.04)', tick:'#94a3b8', tooltip:'#ffffff' };
+}
+
+function mkChart(id,arrays,labels,colors){
+  const ctx=document.getElementById(id); if(!ctx) return;
+  if(S.charts[id]) try{S.charts[id].destroy()}catch(e){}
+  const c=getChartColors();
+  S.charts[id]=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:arrays[0].map(d=>d.x),
+      datasets:arrays.map((a,i)=>({
+        label:labels[i], data:a.map(d=>d.y),
+        borderColor:colors[i], backgroundColor:colors[i]+'18',
+        fill:i===0, tension:.45, pointRadius:3,
+        pointBackgroundColor:colors[i], borderWidth:2,
+        pointHoverRadius:5
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{duration:400},
+      plugins:{
+        legend:{display:arrays.length>1,labels:{font:{size:11,family:'Space Mono'},boxWidth:10,color:'#8892a4'}},
+        tooltip:{backgroundColor:c.tooltip,titleFont:{family:'Space Mono',size:11},bodyFont:{family:'Space Mono',size:10},cornerRadius:8,borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8eaf0',bodyColor:'#8892a4'}
+      },
+      scales:{
+        x:{ticks:{font:{size:9,family:'Space Mono'},maxRotation:30,maxTicksLimit:6,color:c.tick},grid:{color:c.grid}},
+        y:{ticks:{font:{size:10,family:'Space Mono'},color:c.tick},grid:{color:c.grid}}
+      }
+    }
+  });
+}
+
+function renderCharts(){
+  if(!S.chartsInit){
+    mkChart('cPH',[S.hPH],['pH'],['#00e676']);
+    mkChart('cEC',[S.hEC],['EC (mS/cm)'],['#448aff']);
+    mkChart('cWT',[S.hWT],['Suhu Air (°C)'],['#ffab00']);
+    mkChart('cAir',[S.hAT,S.hHM],['Suhu Udara (°C)','Kelembapan (%)'],['#ff5252','#e040fb']);
+    S.chartsInit=true;
+  } else { updateCharts(); }
+}
+function updateCharts(){
+  [['cPH',[S.hPH]],['cEC',[S.hEC]],['cWT',[S.hWT]],['cAir',[S.hAT,S.hHM]]].forEach(([id,a])=>{
+    const c=S.charts[id]; if(!c) return;
+    c.data.labels=a[0].map(d=>d.x);
+    a.forEach((arr,i)=>c.data.datasets[i].data=arr.map(d=>d.y));
+    c.update('none');
+  });
+}
+function setFilter(btn,f){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); showToast(`📊 ${btn.textContent}`,'ok'); }
+
+/* ══════════════════════════════════════
+   SCHEDULE
+══════════════════════════════════════ */
+function buildSchedule(){
+  const now=new Date();
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  document.getElementById('schMonth').textContent=months[now.getMonth()]+' '+now.getFullYear();
+  const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const todayIdx=now.getDay();
+  const sprayDays=[0,1,3,5];
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(now); d.setDate(now.getDate()-todayIdx+i);
+    const isToday=i===todayIdx, isSpray=sprayDays.includes(i);
+    html+=`<div class="day-cell${isToday?' today':''}${isSpray?' spray':''}">
+      <span class="day-name">${days[i].charAt(0)}</span>
+      <div class="day-num">${d.getDate()}</div>
+      <div class="day-dot"></div>
+    </div>`;
+  }
+  document.getElementById('dayRow').innerHTML=html;
+  let next='Hari ini';
+  for(let i=1;i<=7;i++){ const idx=(todayIdx+i)%7; if(sprayDays.includes(idx)){ const nd=new Date(now); nd.setDate(now.getDate()+i); next=days[nd.getDay()]+', '+nd.getDate()+' '+months[nd.getMonth()]; break; } }
+  document.getElementById('nextSpray').textContent=next;
+}
+
+/* ══════════════════════════════════════
+   LOG
+══════════════════════════════════════ */
+function addLog(level,msg){
+  const ts=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const cls={info:'li',warn:'lw',err:'le'}[level]||'li';
+  S.logs.push({ts,msg,cls});
+  if(S.logs.length>60) S.logs.shift();
+  const el=document.getElementById('logWrap');
+  if(el){ el.innerHTML=S.logs.map(l=>`<div class="log-line ${l.cls}"><span class="log-ts">[${l.ts}]</span>${l.msg}</div>`).join(''); el.scrollTop=el.scrollHeight; }
+}
+
+/* ══════════════════════════════════════
+   SETTINGS
+══════════════════════════════════════ */
+function updateHST(){ const v=document.getElementById('plantDate').value; if(!v) return; const d=Math.floor((new Date()-new Date(v))/(864e5)); S.hst=Math.max(0,d); setText('hstVal',S.hst); }
+function calibPH(){ const v=parseFloat(document.getElementById('calibPH').value)||7; showToast(`🧪 Kalibrasi pH: ref ${v}`,'ok'); addLog('info',`Kalibrasi pH ref=${v}`); addNotif('info','🧪 Kalibrasi pH',`Ref: ${v} diterapkan`,'calib'); }
+function calibEC(){ const v=parseFloat(document.getElementById('calibEC').value)||1.41; showToast(`⚡ Kalibrasi EC: ref ${v}`,'ok'); addLog('info',`Kalibrasi EC ref=${v}`); addNotif('info','⚡ Kalibrasi EC',`Ref: ${v} diterapkan`,'calib'); }
+function saveSettings(){
+  S.tgt.phMin=parseFloat(document.getElementById('tPHMin').value)||5;
+  S.tgt.phMax=parseFloat(document.getElementById('tPHMax').value)||6;
+  S.tgt.ecMin=parseFloat(document.getElementById('tECMin').value)||2;
+  S.tgt.ecMax=parseFloat(document.getElementById('tECMax').value)||3.5;
+  S.tgt.wtMin=parseFloat(document.getElementById('tWTMin').value)||18;
+  S.tgt.wtMax=parseFloat(document.getElementById('tWTMax').value)||24;
+  showToast('💾 Setting tersimpan!','ok');
+  addLog('info','Setting target sensor disimpan');
+  addNotif('info','💾 Setting Disimpan','Target sensor diperbarui','settings');
+}
+
+/* ══════════════════════════════════════
+   SEED DATA
+══════════════════════════════════════ */
+function seedHistory(){
+  for(let i=14;i>=0;i--){
+    const d=new Date(Date.now()-i*30000);
+    const l=d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    S.hPH.push({x:l,y:+(5.2+Math.random()*.6).toFixed(2)});
+    S.hEC.push({x:l,y:+(2.2+Math.random()*.9).toFixed(2)});
+    S.hWT.push({x:l,y:+(19+Math.random()*3.5).toFixed(1)});
+    S.hAT.push({x:l,y:+(22+Math.random()*4).toFixed(1)});
+    S.hHM.push({x:l,y:+(68+Math.random()*10).toFixed(0)});
+  }
+}
+function seedNotifs(){
+  addNotif('info','✅ Sistem Online','Greenhouse Controller terhubung','system');
+  addNotif('info','🌱 Tanaman Terdeteksi','Kentang Aeroponik — Hari ke-14 HST','plant');
+  addNotif('blue','📡 Sinkronisasi','Sensor berhasil disinkronisasi','sync');
+}
+function setDefaultDate(){ const d=new Date(); d.setDate(d.getDate()-14); document.getElementById('plantDate').value=d.toISOString().split('T')[0]; }
+
+/* ══════════════════════════════════════
+   BOOT
+══════════════════════════════════════ */
+window.addEventListener('load',()=>{
+  loadTheme();
+  const stored=localStorage.getItem('ca2')||sessionStorage.getItem('ca2');
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('out');
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      if(stored){
+        const sv=JSON.parse(stored);
+        const acct=ACCOUNTS.find(a=>a.username===sv.username);
+        if(acct){ startApp(acct); return; }
+      }
+      document.getElementById('loginPage').style.display='flex';
+    },500);
+  },1800);
+});
+</script>
+
+</body>
+</html>
